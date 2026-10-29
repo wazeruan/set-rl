@@ -55,23 +55,23 @@ def deal(rng: random.Random, n_cards: int = 12, n_attrs: int = 4, min_sets: int 
     raise RuntimeError(f"no table with >= {min_sets} sets after {max_tries} tries")
 
 
-def format_card(card: Card) -> str:
-    return ", ".join(f"{name}={values[v]}" for (name, values), v in zip(ATTRIBUTES, card))
+def format_card(card: Card, attributes=ATTRIBUTES) -> str:
+    return ", ".join(f"{name}={values[v]}" for (name, values), v in zip(attributes, card))
 
 
-def build_prompt(cards: list[Card]) -> str:
+def build_prompt(cards: list[Card], attributes=ATTRIBUTES) -> str:
     n_attrs = len(cards[0])
-    if n_attrs > len(ATTRIBUTES) or any(len(c) != n_attrs or not all(v in (0, 1, 2) for v in c) for c in cards):
-        raise ValueError("cards must share one length <= len(ATTRIBUTES) with values in {0, 1, 2}")
-    names = ", ".join(name for name, _ in ATTRIBUTES[:n_attrs])
-    lines = "\n".join(f"{i + 1}. {format_card(c)}" for i, c in enumerate(cards))
+    if n_attrs > len(attributes) or any(len(c) != n_attrs or not all(v in (0, 1, 2) for v in c) for c in cards):
+        raise ValueError("cards must share one length <= len(attributes) with values in {0, 1, 2}")
+    names = ", ".join(name for name, _ in attributes[:n_attrs])
+    lines = "\n".join(f"{i + 1}. {format_card(c, attributes)}" for i, c in enumerate(cards))
     return (
         f"Each card has {n_attrs} attributes ({names}), each with 3 possible values.\n"
         "Three cards form a SET if, for every attribute, the three values are either all the same "
         "or all different.\n\n"
         f"Cards:\n{lines}\n\n"
-        "Find one SET among these cards. Think briefly, then give the three card numbers "
-        "in the form <answer>i, j, k</answer>."
+        "Find one SET among these cards. Keep your reasoning short (under 150 words), then end "
+        "with the three card numbers in the form <answer>i, j, k</answer>."
     )
 
 
